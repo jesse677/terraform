@@ -1,0 +1,91 @@
+# Elasticsearch Helm Chart Values - Working multi-node configuration
+# Use multi-node setup which works with the chart's defaults
+replicas: 1
+
+# Elasticsearch Configuration for single master
+esConfig:
+  elasticsearch.yml: |
+    cluster.name: "k3s-elk-cluster"
+    network.host: 0.0.0.0
+    xpack.security.enabled: false
+    xpack.security.enrollment.enabled: false
+    xpack.license.self_generated.type: basic
+
+# Master nodes configuration - work with chart defaults
+clusterInitialMasterNodes: 
+  - elasticsearch-master-0
+
+# Disable protocol/security
+protocol: http
+createCert: false
+
+# Resource Configuration
+resources:
+  requests:
+    cpu: "500m"
+    memory: "2Gi"
+  limits:
+    cpu: "1000m"
+    memory: "3Gi"
+
+# JVM Configuration
+esJavaOpts: "-Xms1g -Xmx1g"
+
+# Persistence with Ceph Storage
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: "rook-ceph-block"
+  accessModes:
+    - ReadWriteOnce
+
+# Security Context
+securityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+
+podSecurityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+
+# Service Configuration
+service:
+  type: ClusterIP
+  httpPort: 9200
+  transportPort: 9300
+
+# Health Checks - Let chart handle default probes
+
+# Node Selector and Tolerations
+nodeSelector: {}
+tolerations: []
+
+# Image Configuration
+image: "docker.elastic.co/elasticsearch/elasticsearch"
+imageTag: "8.11.0"
+imagePullPolicy: "IfNotPresent"
+
+# Cluster Health - Disable for security-free setup
+clusterHealthCheckParams: ""
+
+# Volume Claim Template
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: "rook-ceph-block"
+  resources:
+    requests:
+      storage: 10Gi
+
+# Fix selector labels to match StatefulSet requirements
+labels:
+  app: "elasticsearch-master"
+  chart: "elasticsearch"
+  heritage: "Helm"
+  release: "elasticsearch"
+
+# Pod labels (ensure consistency)
+podLabels:
+  app: "elasticsearch-master"
+  chart: "elasticsearch"
+  heritage: "Helm"
+  release: "elasticsearch"
