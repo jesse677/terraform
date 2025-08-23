@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tina-crypto-bot
+  labels:
+    app: tina-crypto-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tina-crypto-bot
+  template:
+    metadata:
+      labels:
+        app: tina-crypto-bot
+    spec:
+      containers:
+      - name: tina-crypto-bot
+        image: tina-crypto-bot:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ALPACA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tina-secrets
+              key: alpaca-api-key
+        - name: ALPACA_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: tina-secrets
+              key: alpaca-api-secret
+        - name: PAPER_TRADING
+          value: "true"
+        - name: CHECK_INTERVAL_SECONDS
+          value: "60"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DEBUG_TRADING
+          value: "false"
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: logs
+        emptyDir: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tina-secrets
+type: Opaque
+data:
+  # Base64 encoded values - replace with actual encoded API keys
+  alpaca-api-key: "REPLACE_WITH_BASE64_ENCODED_API_KEY"
+  alpaca-api-secret: "REPLACE_WITH_BASE64_ENCODED_API_SECRET"

@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+  namespace: elk-stack
+data:
+  logstash.yml: |
+    http.host: 0.0.0.0
+    path.config: /usr/share/logstash/pipeline
+    path.logs: /usr/share/logstash/logs
+    pipeline.workers: 1
+    pipeline.batch.size: 1000
+  pipeline.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+      tcp {
+        port => 5000
+        codec => json_lines
+      }
+      http {
+        port => 8080
+      }
+    }
+    
+    filter {
+      if [kubernetes] {
+        mutate {
+          add_field => { "cluster" => "k3s-cluster" }
+        }
+      }
+      
+      if [message] =~ /^\{.*\}$/ {
+        json {
+          source => "message"
+        }
+      }
+      
+      date {
+        match => [ "@timestamp", "ISO8601" ]
+      }
+    }
+    
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        index => "k3s-logs-%{+YYYY.MM.dd}"
+      }
+      stdout {
+        codec => rubydebug
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: elk-stack
+  labels:
+    app: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+      - name: logstash
+        image: docker.elastic.co/logstash/logstash:8.11.0
+        ports:
+        - containerPort: 5044
+          name: beats
+        - containerPort: 5000
+          name: tcp
+        - containerPort: 8080
+          name: http
+        - containerPort: 9600
+          name: http-metrics
+        env:
+        - name: XPACK_MONITORING_ENABLED
+          value: "false"
+        - name: LS_JAVA_OPTS
+          value: "-Xms1g -Xmx1g"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        volumeMounts:
+        - name: logstash-config
+          mountPath: /usr/share/logstash/config/
+        - name: logstash-pipeline
+          mountPath: /usr/share/logstash/pipeline/
+      volumes:
+      - name: logstash-config
+        configMap:
+          name: logstash-config
+          items:
+          - key: logstash.yml
+            path: logstash.yml
+      - name: logstash-pipeline
+        configMap:
+          name: logstash-config
+          items:
+          - key: pipeline.conf
+            path: pipeline.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: elk-stack
+  labels:
+    app: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+  - name: beats
+    port: 5044
+    targetPort: 5044
+  - name: tcp
+    port: 5000
+    targetPort: 5000
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: http-metrics
+    port: 9600
+    targetPort: 9600
+  type: ClusterIP

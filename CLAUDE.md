@@ -1,0 +1,1 @@
+- there are terraform modules and terragrunt deployments in this project. there is an elk stack, k3s cluster, apps like tina the crypto trading bot
