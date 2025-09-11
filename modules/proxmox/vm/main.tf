@@ -1,7 +1,7 @@
 resource "proxmox_virtual_environment_file" "cloud_config_user_data" {
-  count        = local.user_data != null ? 1 : 0
+  count        = var.user_data != null ? 1 : 0
   content_type = "snippets"
-  datastore_id = local.datastore_id
+  datastore_id = var.cloud_init_datastore
   node_name    = local.node_name
   
   source_raw {
@@ -42,6 +42,7 @@ data "local_file" "ssh_public_key" {
 locals {
   node_name    = var.node_name != null ? var.node_name : var.node
   datastore_id = var.datastore_id != "local" ? var.datastore_id : var.cloud_init_datastore
+  cloud_init_datastore = var.cloud_init_datastore
   user_data    = var.user_data != null ? var.user_data : var.cloud_init_user_data
   ssh_keys     = var.ssh_public_key_file != null ? [trimspace(data.local_file.ssh_public_key[0].content)] : var.ssh_keys
 }
@@ -65,13 +66,20 @@ resource "proxmox_virtual_environment_vm" "vm" {
     dedicated = var.memory
   }
 
+  # Process disks - handle both template and blank disk scenarios
   dynamic "disk" {
-    for_each = var.disks
+    for_each = concat(
+      # Boot disk (first disk if using old disks variable)
+      var.boot_disk != null ? [var.boot_disk] : (length(var.disks) > 0 ? [var.disks[0]] : []),
+      # Additional disks (rest of disks if using old disks variable)  
+      var.additional_disks != [] ? var.additional_disks : (length(var.disks) > 1 ? slice(var.disks, 1, length(var.disks)) : [])
+    )
     content {
       datastore_id = disk.value.datastore_id
       file_id      = lookup(disk.value, "file_id", null)
       interface    = disk.value.interface
-      size         = disk.value.size
+      # Only set size if not using a template file_id or if size > 0
+      size         = lookup(disk.value, "file_id", null) != null && disk.value.size == 0 ? null : disk.value.size
       file_format  = lookup(disk.value, "file_format", "raw")
     }
   }

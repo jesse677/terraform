@@ -1,0 +1,126 @@
+#cloud-config
+hostname: ${hostname}
+package_update: false
+package_upgrade: false
+
+users:
+  - name: ${username}
+    plain_text_passwd: ${password}
+    lock_passwd: false
+    groups: sudo
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ${ssh_key}
+
+ssh_pwauth: true
+chpasswd:
+  expire: false
+disable_root: false
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/99-cloud-init.conf
+    content: |
+      PasswordAuthentication yes
+      PubkeyAuthentication yes
+      PermitRootLogin yes
+    permissions: '0644'
+    
+  - path: /usr/local/bin/setup-additional-disks.sh
+    content: |
+      #!/bin/bash
+      # Script to automatically partition and mount additional disks
+      set -e
+      
+      # Get list of all block devices
+      BOOT_DISK=$(mount | grep "on / " | awk '{print $1}' | sed 's/[0-9]*$//' | sed 's/p$//')
+      echo "Boot disk detected: $BOOT_DISK"
+      
+      # Find all unpartitioned disks (excluding boot disk)
+      UNPARTITIONED_DISKS=""
+      for disk in $(lsblk -dpno NAME,TYPE | grep disk | awk '{print $1}'); do
+        # Skip the boot disk
+        if [[ "$disk" == "$BOOT_DISK" ]]; then
+          continue
+        fi
+        
+        # Check if disk has partitions
+        PARTITIONS=$(lsblk -n "$disk" | grep -c part || true)
+        if [ "$PARTITIONS" -eq 0 ]; then
+          echo "Found unpartitioned disk: $disk"
+          UNPARTITIONED_DISKS="$UNPARTITIONED_DISKS $disk"
+        fi
+      done
+      
+      # Process each unpartitioned disk
+      MOUNT_INDEX=1
+      for disk in $UNPARTITIONED_DISKS; do
+        echo "Setting up disk: $disk"
+        
+        # Create partition table and single partition
+        parted -s "$disk" mklabel gpt
+        parted -s "$disk" mkpart primary ext4 0% 100%
+        
+        # Wait for partition to appear
+        sleep 2
+        partprobe "$disk"
+        
+        # Get the partition name (handles both /dev/sdX1 and /dev/nvmeXnYp1 formats)
+        if [[ "$disk" =~ nvme ]]; then
+          PARTITION="$${disk}p1"
+        else
+          PARTITION="$${disk}1"
+        fi
+        
+        # Format the partition
+        mkfs.ext4 -F "$PARTITION"
+        
+        # Create mount point
+        MOUNT_POINT="/data$MOUNT_INDEX"
+        mkdir -p "$MOUNT_POINT"
+        
+        # Get UUID of the partition
+        UUID=$(blkid -s UUID -o value "$PARTITION")
+        
+        # Add to fstab for persistent mounting
+        echo "UUID=$UUID $MOUNT_POINT ext4 defaults,nofail 0 2" >> /etc/fstab
+        
+        # Mount the partition
+        mount "$MOUNT_POINT"
+        
+        # Set permissions
+        chmod 755 "$MOUNT_POINT"
+        
+        echo "Disk $disk mounted at $MOUNT_POINT"
+        MOUNT_INDEX=$((MOUNT_INDEX + 1))
+      done
+      
+      echo "Additional disk setup complete"
+    permissions: '0755'
+
+runcmd:
+  # Wait for network connectivity
+  - until ping -c1 8.8.8.8 &>/dev/null; do echo "Waiting for network..."; sleep 2; done
+  
+  # System setup
+  - systemctl restart ssh
+  
+  # Install packages with retry logic
+  - |
+    for i in 1 2 3; do
+      apt-get update && break || sleep 10
+    done
+  - |
+    for i in 1 2 3; do
+      apt-get install -y ${join(" ", packages)} parted && break || sleep 10
+    done
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  
+  # Setup additional disks if present
+  - /usr/local/bin/setup-additional-disks.sh
+  
+  # System ready
+  - echo "VM provisioning complete" > /tmp/vm-ready
+
+final_message: "${hostname} ready"

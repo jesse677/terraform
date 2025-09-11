@@ -1,13 +1,3 @@
-variable "kubernetes_server_endpoint" {
-  description = "The endpoint of the Kubernetes API server"
-  type        = string
-}
-
-variable "kubernetes_config_path" {
-  description = "Path to the kubeconfig file"
-  type        = string
-}
-
 variable "name" {
   description = "Name of the secret"
   type        = string
@@ -16,10 +6,11 @@ variable "name" {
 variable "namespace" {
   description = "Namespace for the secret"
   type        = string
+  default     = "default"
 }
 
 variable "type" {
-  description = "Type of the secret"
+  description = "Type of the secret (e.g., Opaque, kubernetes.io/service-account-token)"
   type        = string
   default     = "Opaque"
 }
@@ -28,10 +19,30 @@ variable "data" {
   description = "Data for the secret (base64 encoded)"
   type        = map(string)
   default     = {}
+  sensitive   = true
 }
 
-variable "string_data" {
-  description = "String data for the secret (will be base64 encoded automatically)"
+variable "binary_data" {
+  description = "Binary data for the secret"
   type        = map(string)
+  default     = {}
+  sensitive   = true
+}
+
+variable "labels" {
+  description = "Labels to apply to the secret"
+  type        = map(string)
+  default     = {}
+}
+
+variable "annotations" {
+  description = "Annotations to apply to the secret"
+  type        = map(string)
+  default     = {}
+}
+
+variable "immutable" {
+  description = "If set to true, ensures that data stored in the Secret cannot be updated"
+  type        = bool
   default     = null
 }
