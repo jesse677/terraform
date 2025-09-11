@@ -1,83 +1,50 @@
-# Create namespace for Rook operator
-resource "kubernetes_namespace" "rook_namespace" {
+resource "kubernetes_namespace" "namespace" {
+  count = var.create_namespace ? 1 : 0
+  
   metadata {
-    name = var.namespace
+    name        = var.namespace
+    labels      = var.namespace_labels
+    annotations = var.namespace_annotations
   }
 }
 
-# Deploy Rook operator via Helm
 resource "helm_release" "rook_operator" {
-  name       = var.release_name
-  namespace  = kubernetes_namespace.rook_namespace.metadata[0].name
-  repository = var.helm_repository
-  chart      = "rook-ceph"
-  version    = var.chart_version
+  name                       = var.release_name
+  namespace                  = var.namespace
+  repository                 = var.helm_repository
+  chart                      = var.chart_name
+  version                    = var.chart_version
+  values                     = var.helm_values
+  timeout                    = var.timeout
+  wait                       = var.wait
+  wait_for_jobs             = var.wait_for_jobs
+  force_update              = var.force_update
+  recreate_pods             = var.recreate_pods
+  max_history               = var.max_history
+  atomic                    = var.atomic
+  cleanup_on_fail           = var.cleanup_on_fail
+  reset_values              = var.reset_values
+  reuse_values              = var.reuse_values
+  skip_crds                 = var.skip_crds
+  disable_openapi_validation = var.disable_openapi_validation
 
-  # Core configuration
-  set {
-    name  = "crds.enabled"
-    value = var.enable_crds
-  }
-
-  set {
-    name  = "enableDiscoveryDaemon"
-    value = var.enable_discovery_daemon
-  }
-
-  set {
-    name  = "logLevel"
-    value = var.log_level
-  }
-
-  set {
-    name  = "csi.enableRbdDriver"
-    value = var.enable_rbd_driver
-  }
-
-  set {
-    name  = "csi.enableCephfsDriver"
-    value = var.enable_cephfs_driver
-  }
-
-  # Resource limits
-  set {
-    name  = "resources.limits.cpu"
-    value = var.resource_limits_cpu
-  }
-
-  set {
-    name  = "resources.limits.memory"
-    value = var.resource_limits_memory
-  }
-
-  # Dynamic tolerations for discovery daemon
   dynamic "set" {
-    for_each = { for idx, toleration in var.tolerations : idx => toleration }
+    for_each = var.set_values
     content {
-      name  = "discover.tolerations[${set.key}].effect"
-      value = set.value.effect
+      name  = set.value.name
+      value = set.value.value
+      type  = lookup(set.value, "type", null)
     }
   }
 
-  dynamic "set" {
-    for_each = { for idx, toleration in var.tolerations : idx => toleration }
+  dynamic "set_sensitive" {
+    for_each = var.set_sensitive_values
     content {
-      name  = "discover.tolerations[${set.key}].key"
-      value = set.value.key
+      name  = set_sensitive.value.name
+      value = set_sensitive.value.value
+      type  = lookup(set_sensitive.value, "type", null)
     }
   }
 
-  dynamic "set" {
-    for_each = { for idx, toleration in var.tolerations : idx => toleration }
-    content {
-      name  = "discover.tolerations[${set.key}].operator"
-      value = set.value.operator
-    }
-  }
-  
-
-  # Additional Helm values for advanced configuration
-  values = var.helm_values != null ? [var.helm_values] : []
-
-  depends_on = [kubernetes_namespace.rook_namespace]
+  depends_on = [kubernetes_namespace.namespace]
 }

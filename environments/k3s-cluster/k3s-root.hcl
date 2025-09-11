@@ -20,7 +20,7 @@ locals {
   k3s_server_ip        = "192.168.20.21"
 
   # Shared resources
-  disk_template        = "jtdt01-images:import/jammy-server-cloudimg-amd64.qcow2"
+  disk_template        = "jtdt01-images:import/jammy-server-cloudimg-amd64-jellyfish.qcow2"
   disk_datastore       = "local-lvm"
   disk_size            = 100
 
@@ -35,7 +35,7 @@ locals {
   disks = [
     {
       datastore_id = "local-lvm"
-      file_id      = "jtdt01-images:import/jammy-server-cloudimg-amd64.qcow2"
+      file_id      = "jtdt01-images:import/jammy-server-cloudimg-amd64-jellyfish.qcow2"
       interface    = "scsi0"
       size         = 100
       file_format  = "raw"

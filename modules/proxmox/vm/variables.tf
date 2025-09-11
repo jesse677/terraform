@@ -40,10 +40,51 @@ variable "memory" {
 }
 
 variable "disks" {
-  description = "List of disks to attach to the VM"
+  description = "List of disks to attach to the VM (deprecated - use boot_disk and additional_disks)"
   type = list(object({
     datastore_id = string
     file_id      = optional(string)
+    interface    = string
+    size         = number
+    file_format  = optional(string)
+  }))
+  default = []
+}
+
+variable "template_id" {
+  description = "VM ID of the template to clone from (use this OR boot_disk, not both)"
+  type        = number
+  default     = null
+}
+
+variable "boot_disk" {
+  description = "Boot disk configuration when not cloning from template"
+  type = object({
+    datastore_id = string
+    file_id      = optional(string)
+    interface    = optional(string)
+    size         = number
+    file_format  = optional(string)
+  })
+  default = null
+}
+
+variable "boot_disk_datastore" {
+  description = "Datastore for boot disk when cloning from template"
+  type        = string
+  default     = "local-lvm"
+}
+
+variable "boot_disk_size" {
+  description = "Size of boot disk in GB when cloning from template"
+  type        = number
+  default     = null
+}
+
+variable "additional_disks" {
+  description = "List of additional data disks to attach to the VM"
+  type = list(object({
+    datastore_id = string
     interface    = string
     size         = number
     file_format  = optional(string)
@@ -153,7 +194,7 @@ variable "cloud_init_user_data" {
 variable "cloud_init_datastore" {
   description = "Datastore to store cloud-init files (deprecated, use datastore_id)"
   type        = string
-  default     = "local"
+  default     = "jtdt01-images"
 }
 
 # High Availability Configuration
