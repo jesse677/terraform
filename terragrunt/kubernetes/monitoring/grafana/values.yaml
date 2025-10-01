@@ -1,0 +1,72 @@
+replicas: 1
+
+adminUser: admin
+adminPassword: admin
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+persistence:
+  enabled: true
+  storageClassName: "rook-ceph-block"
+  size: 10Gi
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Elasticsearch
+        type: elasticsearch
+        access: proxy
+        url: http://elasticsearch-master:9200
+        database: "logstash-*"
+        jsonData:
+          interval: Daily
+          timeField: "@timestamp"
+          esVersion: 70
+        isDefault: false
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-server:80
+        isDefault: true
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    kubernetes-cluster:
+      gnetId: 7249
+      revision: 1
+      datasource: Prometheus
+    kubernetes-pods:
+      gnetId: 6417
+      revision: 1
+      datasource: Prometheus
+    elk-logs:
+      gnetId: 266
+      revision: 1
+      datasource: Elasticsearch
