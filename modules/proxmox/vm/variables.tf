@@ -194,7 +194,7 @@ variable "cloud_init_user_data" {
 variable "cloud_init_datastore" {
   description = "Datastore to store cloud-init files (deprecated, use datastore_id)"
   type        = string
-  default     = "jtdt01-images"
+  default     = "images"
 }
 
 # High Availability Configuration
