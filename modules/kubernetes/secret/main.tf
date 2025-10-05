@@ -1,4 +1,4 @@
-resource "kubernetes_secret" "secret" {
+resource "kubernetes_secret" "this" {
   metadata {
     name        = var.name
     namespace   = var.namespace
@@ -7,14 +7,9 @@ resource "kubernetes_secret" "secret" {
   }
 
   type = var.type
-
-  data        = var.data
-  binary_data = var.binary_data
-
-  dynamic "immutable" {
-    for_each = var.immutable != null ? [var.immutable] : []
-    content {
-      immutable = immutable.value
-    }
-  }
+  data = merge(
+    var.data,
+    { for k, v in var.string_data : k => base64encode(v) }
+  )
+  immutable = var.immutable
 }

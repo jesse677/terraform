@@ -1,9 +1,19 @@
-output "secret_name" {
-  description = "Name of the created secret"
-  value       = kubernetes_secret.secret.metadata[0].name
+output "name" {
+  description = "Name of the secret"
+  value       = kubernetes_secret.this.metadata[0].name
 }
 
-output "secret_namespace" {
-  description = "Namespace of the created secret"
-  value       = kubernetes_secret.secret.metadata[0].namespace
+output "namespace" {
+  description = "Namespace of the secret"
+  value       = kubernetes_secret.this.metadata[0].namespace
+}
+
+output "uid" {
+  description = "UID of the secret"
+  value       = kubernetes_secret.this.metadata[0].uid
+}
+
+output "type" {
+  description = "Type of the secret"
+  value       = kubernetes_secret.this.type
 }

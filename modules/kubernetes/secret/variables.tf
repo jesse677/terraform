@@ -10,20 +10,20 @@ variable "namespace" {
 }
 
 variable "type" {
-  description = "Type of the secret (e.g., Opaque, kubernetes.io/service-account-token)"
+  description = "Type of the secret"
   type        = string
   default     = "Opaque"
 }
 
 variable "data" {
-  description = "Data for the secret (base64 encoded)"
+  description = "Map of secret data (base64 encoded)"
   type        = map(string)
   default     = {}
   sensitive   = true
 }
 
-variable "binary_data" {
-  description = "Binary data for the secret"
+variable "string_data" {
+  description = "Map of secret data (plain text - will be base64 encoded)"
   type        = map(string)
   default     = {}
   sensitive   = true
@@ -42,7 +42,7 @@ variable "annotations" {
 }
 
 variable "immutable" {
-  description = "If set to true, ensures that data stored in the Secret cannot be updated"
+  description = "Whether the secret is immutable"
   type        = bool
-  default     = null
+  default     = false
 }
