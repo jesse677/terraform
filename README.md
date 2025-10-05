@@ -7,7 +7,6 @@ This repository contains Terraform modules and Terragrunt configurations for man
 ```
 terraform/
 ├── .gitignore                   # Git ignore rules for Terraform/Terragrunt
-├── CLAUDE.md                    # Project-specific instructions
 ├── modules/                     # Reusable Terraform modules
 │   ├── kubernetes/              # Kubernetes-related modules
 │   │   ├── argocd-application/  # ArgoCD application deployment
