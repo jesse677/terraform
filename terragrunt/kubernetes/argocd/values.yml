@@ -1,0 +1,35 @@
+server:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+redis:
+  enabled: true
+
+applicationSet:
+  enabled: true
+
+notifications:
+  enabled: false
+
+global:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+configs:
+  params:
+    server.insecure: true
+
+  repositories: {}
