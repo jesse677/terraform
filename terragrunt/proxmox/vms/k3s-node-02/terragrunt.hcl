@@ -1,14 +1,13 @@
 include "root" {
-  path = "${get_terragrunt_dir()}/../root.hcl"
+  path = find_in_parent_folders("root.hcl")
 }
-
 
 terraform {
   source = "../../../../modules/proxmox/vm"
 }
 
 locals {
-  root = read_terragrunt_config(find_in_parent_folders("root.hcl"))
+  root = read_terragrunt_config(find_in_parent_folders("vms-root.hcl"))
   
   # Node-specific configuration
   node = {
@@ -83,7 +82,7 @@ inputs = {
   ssh_public_key_file = "~/.ssh/id_rsa.pub"
   
   # Cloud-init configuration  
-  user_data = templatefile("${get_terragrunt_dir()}/../cloud-init.tftpl", {
+  user_data = templatefile("../cloud-init.tftpl", {
     hostname = local.node.name
     packages = local.root.locals.base_packages
     username = local.root.locals.vm_username
