@@ -14,7 +14,7 @@ locals {
   node = {
     name    = "steam-server"
     proxmox = "pve-node-03"
-    ip      = "192.168.20.2"        # Management/external network
+    ip      = "192.168.88.230"        # Management/external network
   }
   
   # K3s node hardware requirements
@@ -70,7 +70,7 @@ inputs = {
   # Authentication
   username = local.root.locals.vm_username
   password = local.root.locals.vm_password
-  ssh_public_key_file = "~/.ssh/id_rsa.pub"
+  ssh_public_key_file = "~/.ssh_linux/id_ed25519.pub"
   
   # Cloud-init configuration  
   user_data = templatefile("../cloud-init.tftpl", {

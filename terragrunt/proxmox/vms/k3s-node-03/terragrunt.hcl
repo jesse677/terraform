@@ -14,9 +14,9 @@ locals {
   node = {
     name    = "k3s-node-03"
     proxmox = "pve-node-03"
-    ip      = "192.168.20.23"        # Management/external network
-    cluster_ip = "192.168.30.23"     # Kubernetes cluster network (VLAN 30)
-    cluster_gateway = "192.168.30.1"
+    ip      = "192.168.88.224"        # Management/external network
+    cluster_ip = "192.168.88.225"     # Kubernetes cluster network 
+    cluster_gateway = "192.168.88.1"
   }
   
   # K3s node hardware requirements
@@ -30,9 +30,6 @@ locals {
   network_devices = [
     {
       bridge = "vmbr0"    # Management/external network
-    },
-    {
-      bridge = "vmbr1"    # Kubernetes cluster network
     }
   ]
 }
@@ -79,7 +76,7 @@ inputs = {
   # Authentication
   username = local.root.locals.vm_username
   password = local.root.locals.vm_password
-  ssh_public_key_file = "~/.ssh/id_rsa.pub"
+  ssh_public_key_file = "~/.ssh_linux/id_ed25519.pub"
   
   # Cloud-init configuration  
   user_data = templatefile("../cloud-init.tftpl", {

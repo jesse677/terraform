@@ -1,8 +1,7 @@
 locals {
 
   # Infrastructure settings
-  #ssh_public_key_file  = "~/.ssh/id_rsa.pub"
-  ssh_public_key      = file("~/.ssh/id_rsa.pub")
+  ssh_public_key      = file("~/.ssh_linux/id_ed25519.pub")
   
   # Authentication defaults
   vm_username          = "ubuntu"
@@ -11,7 +10,7 @@ locals {
   cloud_init_datastore = "images"
   
   # Network configuration
-  default_gateway       = "192.168.20.1"
+  default_gateway       = "192.168.88.1"
   
   # Disk configuration defaults
   disk_template        = "images:import/jammy-server-cloudimg-amd64-jellyfish.qcow2"
