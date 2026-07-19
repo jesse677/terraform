@@ -2,7 +2,7 @@ locals {
 
   # Infrastructure settings
   #ssh_public_key_file  = "~/.ssh/id_rsa.pub"
-  ssh_public_key      = file("~/.ssh/id_rsa.pub")
+  ssh_public_key      = file("~/.ssh_linux/id_ed25519.pub")
   
   # Authentication defaults
   vm_username          = "ubuntu"

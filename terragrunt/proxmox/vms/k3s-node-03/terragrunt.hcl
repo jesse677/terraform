@@ -79,8 +79,8 @@ inputs = {
   # Authentication
   username = local.root.locals.vm_username
   password = local.root.locals.vm_password
-  ssh_public_key_file = "~/.ssh/id_rsa.pub"
-  
+  ssh_public_key_file = "~/.ssh_linux/id_ed25519.pub"
+
   # Cloud-init configuration  
   user_data = templatefile("../cloud-init.tftpl", {
     hostname = local.node.name
