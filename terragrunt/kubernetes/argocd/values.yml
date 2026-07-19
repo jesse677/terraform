@@ -2,7 +2,7 @@ server:
   service:
     type: ClusterIP
   ingress:
-    enabled: false
+    enabled: true
 
 controller:
   replicas: 1
