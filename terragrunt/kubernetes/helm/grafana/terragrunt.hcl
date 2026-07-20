@@ -7,11 +7,11 @@ include "root" {
 }
 
 inputs = {
-    name             = "argocd"
-    namespace        = "argocd"
-    repository       = "https://argoproj.github.io/argo-helm"
-    chart            = "argo-cd"
-    chart_version    = "7.7.5"
+    name             = "grafana"
+    namespace        = "grafana"
+    repository       = "https://grafana.github.io/helm-charts"
+    chart            = "grafana"
+    chart_version    = "10.5.15"
     create_namespace = true
     timeout          = "50"
     cleanup_on_fail  = true
