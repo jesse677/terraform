@@ -15,7 +15,7 @@ variable "records" {
 }
 
 variable "technitium_url" {
-  description = "Technitium server API URL (e.g. https://dns-01.taylor.net/api)"
+  description = "Technitium server URL (e.g. http://dns-01.taylor.net:5380)"
   type        = string
 }
 
