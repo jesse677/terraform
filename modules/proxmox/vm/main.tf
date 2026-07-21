@@ -120,7 +120,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
 }
 
 # High Availability resource (optional)
-resource "proxmox_virtual_environment_haresource" "vm_ha" {
+#resource "proxmox_virtual_environment_haresource" "vm_ha" {
+resource "proxmox_haresource" "vm_ha" {
   count       = var.ha_enabled ? 1 : 0
   resource_id = "vm:${proxmox_virtual_environment_vm.vm.vm_id}"
   group       = var.ha_group

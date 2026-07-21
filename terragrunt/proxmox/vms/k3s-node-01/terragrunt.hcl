@@ -80,6 +80,7 @@ inputs = {
   ssh_public_key_file = "~/.ssh_linux/id_ed25519.pub"
   
   # Cloud-init configuration  
+  #user_data = templatefile("../cloud-init.tftpl", {
   user_data = templatefile("../cloud-init.tftpl", {
     hostname = local.node.name
     packages = local.root.locals.base_packages
