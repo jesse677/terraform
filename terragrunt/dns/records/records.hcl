@@ -11,5 +11,12 @@ locals {
       ttl        = 3600
       ip_address = "192.168.20.2"
     }
+    pi-led = {
+      zone       = "taylor.net"
+      domain     = "pi-led.taylor.net"
+      type       = "A"
+      ttl        = 3600
+      ip_address = "192.168.88.249"
+    }
   }
 }

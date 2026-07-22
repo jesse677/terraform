@@ -3,9 +3,9 @@
 # resource, so this is the only file that needs to change.
 locals {
   zones = {
-    example = {
-      name = "taylor.net"
-      type = "Primary"
-    }
+    #example = {
+    #  name = "taylor.net"
+    #  type = "Primary"
+    #}
   }
 }
