@@ -4,7 +4,7 @@
     name: pve-exporter-credentials
     namespace: kube-prometheus-stack
   type: Opaque
-  stringData:
+  data:
     token-value: "${pve_token_value}"
 
 - apiVersion: apps/v1

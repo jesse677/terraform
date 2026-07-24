@@ -17,6 +17,6 @@ dependency "kube_prometheus_stack" {
 
 inputs = {
     manifests = yamldecode(templatefile("manifests.yaml.tpl", {
-        pve_token_value = get_env("PVE_EXPORTER_TOKEN_VALUE")
+        pve_token_value = base64encode(get_env("PVE_EXPORTER_TOKEN_VALUE"))
     }))
 }
