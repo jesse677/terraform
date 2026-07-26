@@ -144,4 +144,11 @@ resource "proxmox_haresource" "vm_ha" {
 
   depends_on = [proxmox_virtual_environment_vm.vm]
 }
-   
+
+# Pool membership (optional)
+resource "proxmox_pool_membership" "vm_pool" {
+  count = var.pool_id != null ? 1 : 0
+
+  pool_id = var.pool_id
+  vm_id   = proxmox_virtual_environment_vm.vm.vm_id
+}

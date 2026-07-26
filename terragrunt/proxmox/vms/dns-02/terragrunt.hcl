@@ -43,6 +43,9 @@ inputs = {
   # Cloud-init datastore
   cloud_init_datastore = local.root.locals.cloud_init_datastore
 
+  # Pool membership
+  pool_id = "backup"
+
   # Authentication
   username = local.root.locals.vm_username
   password = local.root.locals.vm_password

@@ -88,4 +88,6 @@ inputs = {
     password = local.root.locals.vm_password
     ssh_key  = local.root.locals.ssh_public_key
   })
+  # Pool membership
+  pool_id = "backup"
 }

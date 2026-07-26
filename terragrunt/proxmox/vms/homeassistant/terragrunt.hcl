@@ -66,6 +66,9 @@ inputs = {
     file_format  = "raw"
   }
 
+  # Pool membership
+  pool_id = "backup"
+  
   # Cloud-init datastore (unused here since enable_cloud_init = false, kept
   # for parity with the other VM configs)
   cloud_init_datastore = local.root.locals.cloud_init_datastore

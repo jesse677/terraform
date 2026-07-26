@@ -223,6 +223,12 @@ variable "enable_cloud_init" {
   default     = true
 }
 
+variable "pool_id" {
+  description = "Proxmox resource pool to add this VM to (optional)"
+  type        = string
+  default     = null
+}
+
 # High Availability Configuration
 variable "ha_enabled" {
   description = "Enable High Availability for this VM"
