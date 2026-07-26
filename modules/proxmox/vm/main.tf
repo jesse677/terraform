@@ -52,6 +52,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   vm_id       = var.vm_id
   node_name   = local.node_name
   tags        = ["terraform"]
+  bios        = var.bios
+  machine     = var.machine
 
   agent {
     enabled = true
@@ -92,26 +94,36 @@ resource "proxmox_virtual_environment_vm" "vm" {
     }
   }
 
-  initialization {
-    dynamic "ip_config" {
-      for_each = var.ip_configs
-      content {
-        ipv4 {
-          address = ip_config.value.address
-          gateway = ip_config.value.gateway
+  dynamic "efi_disk" {
+    for_each = var.efi_disk != null ? [var.efi_disk] : []
+    content {
+      datastore_id = efi_disk.value.datastore_id
+    }
+  }
+
+  dynamic "initialization" {
+    for_each = var.enable_cloud_init ? [1] : []
+    content {
+      dynamic "ip_config" {
+        for_each = var.ip_configs
+        content {
+          ipv4 {
+            address = ip_config.value.address
+            gateway = ip_config.value.gateway
+          }
         }
       }
-    }
 
-    user_account {
-      keys     = local.ssh_keys
-      password = var.password
-      username = var.username
-    }
+      user_account {
+        keys     = local.ssh_keys
+        password = var.password
+        username = var.username
+      }
 
-    user_data_file_id    = local.user_data != null ? proxmox_virtual_environment_file.cloud_config_user_data[0].id : var.user_data_file_id
-    vendor_data_file_id  = var.vendor_data != null ? proxmox_virtual_environment_file.cloud_config_vendor_data[0].id : var.vendor_data_file_id
-    network_data_file_id = var.network_data != null ? proxmox_virtual_environment_file.cloud_config_network_data[0].id : var.network_data_file_id
+      user_data_file_id    = local.user_data != null ? proxmox_virtual_environment_file.cloud_config_user_data[0].id : var.user_data_file_id
+      vendor_data_file_id  = var.vendor_data != null ? proxmox_virtual_environment_file.cloud_config_vendor_data[0].id : var.vendor_data_file_id
+      network_data_file_id = var.network_data != null ? proxmox_virtual_environment_file.cloud_config_network_data[0].id : var.network_data_file_id
+    }
   }
 
   operating_system {

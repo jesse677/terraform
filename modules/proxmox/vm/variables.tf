@@ -197,6 +197,32 @@ variable "cloud_init_datastore" {
   default     = "images"
 }
 
+variable "bios" {
+  description = "BIOS type for the VM (seabios or ovmf)"
+  type        = string
+  default     = "seabios"
+}
+
+variable "machine" {
+  description = "QEMU machine type for the VM (e.g. q35). Null uses the provider default"
+  type        = string
+  default     = null
+}
+
+variable "efi_disk" {
+  description = "EFI disk configuration, required when bios = \"ovmf\""
+  type = object({
+    datastore_id = string
+  })
+  default = null
+}
+
+variable "enable_cloud_init" {
+  description = "Whether to attach a cloud-init drive and initialization config to the VM"
+  type        = bool
+  default     = true
+}
+
 # High Availability Configuration
 variable "ha_enabled" {
   description = "Enable High Availability for this VM"
