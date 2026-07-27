@@ -3,6 +3,8 @@ server:
     type: ClusterIP
   ingress:
     enabled: true
+    ingressClassName: traefik
+    hostname: argocd.taylor.net
 
 controller:
   replicas: 1

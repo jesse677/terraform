@@ -18,5 +18,12 @@ locals {
       ttl        = 3600
       ip_address = "192.168.88.249"
     }
+    argocd = {
+      zone       = "taylor.net"
+      domain     = "argocd.taylor.net"
+      type       = "A"
+      ttl        = 3600
+      ip_address = "192.168.30.240"
+    }
   }
 }
