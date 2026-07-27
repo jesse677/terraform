@@ -233,13 +233,13 @@ variable "pool_id" {
 variable "ha_enabled" {
   description = "Enable High Availability for this VM"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "ha_group" {
   description = "Name of the HA group this VM belongs to"
   type        = string
-  default     = null
+  default     = "pve-ha-01"
 }
 
 variable "ha_state" {
