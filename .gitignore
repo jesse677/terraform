@@ -55,6 +55,12 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# Generated TLS material
+terragrunt/kubernetes/manifest/elk-security/certs/
+
+# GitHub App private key
+terragrunt/kubernetes/manifest/gha-runner-secrets/private-key.pem
+
 # Temporary files
 *.tmp
 *.temp

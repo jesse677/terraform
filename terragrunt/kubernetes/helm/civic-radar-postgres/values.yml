@@ -1,0 +1,31 @@
+# Pinned to Postgres 16 specifically (not the chart's default) because that's
+# the version civic-radar's SQLite->Postgres port was actually tested against.
+# repository override is required: bitnami/postgresql on Docker Hub only
+# publishes "latest" now - Bitnami moved all versioned free-tier images to
+# the separate bitnamilegacy org in 2025. Confirmed bitnamilegacy/postgresql:16
+# actually exists before writing this.
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: "16"
+
+auth:
+  username: civic_radar
+  database: civic_radar
+  # auth.password is injected via terragrunt.hcl's set_sensitive, not here.
+
+primary:
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+service:
+  type: ClusterIP
