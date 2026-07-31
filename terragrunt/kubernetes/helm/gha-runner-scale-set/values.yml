@@ -1,4 +1,4 @@
-githubConfigUrl: "https://github.com/OWNER/REPO"  # UPDATE THIS to the target repo
+githubConfigUrl: "https://github.com/taylor-jt"  # org-level: serves every repo in the org the App is installed on
 
 githubConfigSecret: gha-runner-secrets
 
